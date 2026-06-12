@@ -3,6 +3,7 @@
 ## Plan
 
 [x] 1. Initialize ROS2 package
+
 1. Implement simple_controller.cpp, publish /cmd_vel
 1. Create mini_car.urdf.xacro to describe the mini_car model
 1. Use robot_state_publisher to publish the robot description and TF tree.

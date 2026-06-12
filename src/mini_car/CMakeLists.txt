@@ -29,7 +29,10 @@ endif()
 ament_package()
 
 add_executable(simple_controller src/simple_controller.cpp)
-ament_target_dependencies(simple_controller rclcpp)
+ament_target_dependencies(simple_controller
+  rclcpp
+  geometry_msgs
+)
 
 install(TARGETS
   simple_controller
