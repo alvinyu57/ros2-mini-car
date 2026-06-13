@@ -20,6 +20,7 @@ sudo apt install \
   ros-humble-joint-state-broadcaster \
   ros-humble-slam-toolbox \
   ros-humble-navigation2 \
-  ros-humble-nav2-bringup
+  ros-humble-nav2-bringup \
+  ros-humble-geometry-msgs
 
 ```
