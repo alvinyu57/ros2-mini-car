@@ -21,6 +21,8 @@ sudo apt install \
   ros-humble-slam-toolbox \
   ros-humble-navigation2 \
   ros-humble-nav2-bringup \
-  ros-humble-geometry-msgs
+  ros-humble-geometry-msgs \
+  ros-humble-tf2-tools
+  liburdfdom-tools
 
 ```

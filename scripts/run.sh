@@ -75,4 +75,6 @@ set +u
 source "$WORKSPACE_DIR/install/setup.bash"
 set -u
 
-ros2 run mini_car simple_controller
+ros2 run mini_car simple_controller &
+ros2 launch mini_car_description display.launch.py &
+wait

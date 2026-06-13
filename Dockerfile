@@ -19,7 +19,10 @@ RUN apt-get update && \
         ros-humble-slam-toolbox \
         ros-humble-navigation2 \
         ros-humble-nav2-bringup \
-        ros-humble-geometry-msgs
+        ros-humble-geometry-msgs \
+        ros-humble-tf2-tools \
+        liburdfdom-tools \
+        python3-rosdep
 
 RUN groupadd -g $GID -o $USER && \
     useradd -m -u $UID -g $GID -o -s /bin/bash $USER

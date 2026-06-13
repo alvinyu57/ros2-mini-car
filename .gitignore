@@ -71,3 +71,6 @@ Testing/
 # ROS2 files
 install/
 log/
+
+# vscode
+.vscode

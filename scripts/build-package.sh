@@ -68,6 +68,9 @@ if [ "$run_in_docker" = true ]; then
     exit 0
 fi
 
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
+
 colcon build
 
 if [ "$run_tests" = true ]; then

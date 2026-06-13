@@ -123,3 +123,48 @@
       rclcpp::TimerBase::SharedPtr timer_;
     };
     ```
+
+## Robot Model + TF
+
+1. Create mini_car_description package
+
+    ```bash
+    cd src/
+
+    ros2 pkg create mini_car_description \
+      --build-type ament_cmake \
+      --dependencies xacro robot_state_publisher joint_state_publisher joint_state_publisher_gui rviz2
+    ```
+1. Create mini_car.urdf.xacro to describe the mini_car model
+1. Create launch file to publish robot description and TF tree
+1. Configure RViz to visualize the robot state and TF frames
+1. Compile and run the description package
+
+    ```bash
+    rosdep install --from-paths src --ignore-src -r -y
+
+    colcon build --packages-select mini_car_description
+
+    source install/setup.bash
+    ```
+1. Verify xacro
+
+    ```bash
+    ros2 run xacro xacro \
+      src/mini_car_description/urdf/mini_car.urdf.xacro \
+      -o /tmp/mini_car.urdf
+
+    check_urdf /tmp/mini_car.urdf
+    ```
+
+1. Start RViz + TF
+
+    ```bash
+    ros2 launch mini_car_description display.launch.py
+    ```
+
+1. Check TF tree
+
+    ```bash
+    ros2 run tf2_tools view_frames
+    ```
