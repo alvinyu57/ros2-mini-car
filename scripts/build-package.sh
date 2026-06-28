@@ -63,7 +63,7 @@ if [ "$run_in_docker" = true ]; then
     docker run --rm "${docker_tty_args[@]}" \
         -v "$(pwd):/workspace" \
         -w /workspace \
-        ros-human-builder \
+        ros-${ROS_DISTRO}-builder \
         bash -c "$inner_command"
 
     exit 0

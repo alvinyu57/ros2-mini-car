@@ -5,20 +5,31 @@ set -euo pipefail
 ORIGINAL_ARGS=("$@")
 
 show_usage() {
-    echo "Usage: $0 [--docker]"
+    echo "Usage: $0 [--docker] [--headless|--gui]"
     echo
     echo "Run the ROS2 package."
     echo "  --docker, docker    Run package in Docker."
+    echo "  --headless          Run Gazebo without the GUI."
+    echo "  --gui               Run Gazebo with the GUI (default)."
     echo "  -h, --help          Show this help message."
 }
 
 run_in_docker=false
+gazebo_gui=true
 ros_distro="${ROS_DISTRO:-lyrical}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
     "--docker"|"docker")
         run_in_docker=true
+        shift
+        ;;
+    "--headless")
+        gazebo_gui=false
+        shift
+        ;;
+    "--gui")
+        gazebo_gui=true
         shift
         ;;
     "-h"|"--help")
@@ -57,10 +68,36 @@ if [ "$run_in_docker" = true ]; then
         docker_tty_args=(-it)
     fi
 
+    docker_display_args=()
+    if [ -n "${DISPLAY:-}" ]; then
+        docker_display_args+=(
+            -e "DISPLAY=${DISPLAY}"
+            -e "QT_X11_NO_MITSHM=1"
+        )
+
+        if [ -d /tmp/.X11-unix ]; then
+            docker_display_args+=(-v /tmp/.X11-unix:/tmp/.X11-unix:rw)
+        fi
+
+        if [ -n "${XAUTHORITY:-}" ] && [ -f "${XAUTHORITY}" ]; then
+            docker_display_args+=(
+                -e "XAUTHORITY=${XAUTHORITY}"
+                -v "${XAUTHORITY}:${XAUTHORITY}:ro"
+            )
+        fi
+    fi
+
+    docker_device_args=()
+    if [ -e /dev/dri ]; then
+        docker_device_args+=(--device /dev/dri)
+    fi
+
     docker run --rm "${docker_tty_args[@]}" \
+        "${docker_display_args[@]}" \
+        "${docker_device_args[@]}" \
         -v "$WORKSPACE_DIR:/workspace" \
         -w /workspace \
-        ros-human-builder \
+        ros-${ROS_DISTRO}-builder \
         bash -c "$inner_command"
 
     exit 0
@@ -116,5 +153,5 @@ set -u
 
 # ros2 run mini_car simple_controller &
 # ros2 launch mini_car_description display.launch.py &
-ros2 launch mini_car_gazebo gazebo.launch.py &
+ros2 launch mini_car_gazebo gazebo.launch.py gui:="${gazebo_gui}" &
 wait

@@ -18,6 +18,7 @@ RUN apt-get update && \
         ros-${ROS_DISTRO}-rviz2 \
         ros-${ROS_DISTRO}-geometry-msgs \
         ros-${ROS_DISTRO}-tf2-tools \
+        libxcb-cursor0 \
         liburdfdom-tools \
         python3-rosdep
 

@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
+ROS_DISTRO=lyrical
+
 docker run -v `pwd`:/home/$(whoami)/workspace \
     -w /home/$(whoami)/workspace \
     --rm -it \
-    ros-human-builder
+    ros-${ROS_DISTRO}-builder
