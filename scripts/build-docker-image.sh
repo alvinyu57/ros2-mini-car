@@ -8,13 +8,23 @@ ros_distro="${ROS_DISTRO:-lyrical}"
 docker_image_version="${DOCKER_IMAGE_VERSION:-latest}"
 
 local_image_name="ros-${ros_distro}-builder"
-image_name="${IMAGE_NAME:-${local_image_name}}"
+gh_image_name="${GH_IMAGE_NAME:-}"
 
 repo_full_name="${GITHUB_REPOSITORY:-unknown/unknown}"
 git_sha="${GITHUB_SHA:-$(git rev-parse HEAD 2>/dev/null || echo unknown)}"
 
+tags=(
+    -t "${local_image_name}:${docker_image_version}"
+)
+
+if [[ -n "${gh_image_name}" ]]; then
+    tags+=(
+        -t "${gh_image_name}:${docker_image_version}"
+    )
+fi
+
 docker build \
-    -t "${image_name}:${docker_image_version}" \
+    "${tags[@]}" \
     --build-arg UID="$(id -u)" \
     --build-arg GID="$(id -g)" \
     --build-arg USER="$(whoami)" \

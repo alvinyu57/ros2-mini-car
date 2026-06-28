@@ -23,6 +23,41 @@ sudo apt install \
 
 ```
 
+## Scripts
+
+1. Build docker image
+    ```bash
+    ./scripts/build-docker-image.sh
+    ```
+1. Pull docker image from GHCR
+    ```bash
+    ./scripts/pull-docker-image.sh
+    ```
+1. Build ROS2 package
+    ```bash
+    ./scripts/build-package.sh [--docker] [--test]
+    #    --test, test        Run package tests after building.
+    #    --docker, docker    Build package in Docker."
+    ```
+1. Run ROS2 package
+    ```bash
+    ./scripts/run.sh [--docker] [--headless|--gui]
+    #    --docker, docker    Run package in Docker."
+    #    --headless          Run Gazebo without the GUI."
+    #    --gui               Run Gazebo with the GUI (default)."
+    ```
+
+1. Enter docker container
+    ```bash
+    ./scripts/pull-docker-image.sh
+    ```
+
+1. Clean up
+    ```bash
+    ./scripts/cleanup.sh
+    ```
+
+
 ## Learning Note
 
 ### Plan

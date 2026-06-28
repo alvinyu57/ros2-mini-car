@@ -64,6 +64,7 @@ if [ "$run_in_docker" = true ]; then
     fi
 
     docker run --rm "${docker_tty_args[@]}" \
+        --user "$(id -u):$(id -g)" \
         -v "$(pwd):/workspace" \
         -w /workspace \
         ros-${ros_distro}-builder:${docker_image_version} \

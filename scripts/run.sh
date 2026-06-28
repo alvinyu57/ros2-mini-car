@@ -96,6 +96,7 @@ if [ "$run_in_docker" = true ]; then
     fi
 
     docker run --rm "${docker_tty_args[@]}" \
+        --user "$(id -u):$(id -g)" \
         "${docker_display_args[@]}" \
         "${docker_device_args[@]}" \
         -v "$WORKSPACE_DIR:/workspace" \
