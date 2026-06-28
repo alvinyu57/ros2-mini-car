@@ -2,9 +2,10 @@
 
 set -euo pipefail
 
-ROS_DISTRO=lyrical
+source .env
+ros_distro="${ROS_DISTRO:-lyrical}"
 
 docker run -v `pwd`:/home/$(whoami)/workspace \
     -w /home/$(whoami)/workspace \
     --rm -it \
-    ros-${ROS_DISTRO}-builder
+    ros-${ros_distro}-builder:${DOCKER_IMAGE_VERSION}

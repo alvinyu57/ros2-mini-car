@@ -16,6 +16,7 @@ show_usage() {
 run_tests=false
 run_in_docker=false
 ros_distro="${ROS_DISTRO:-lyrical}"
+source .env
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -63,7 +64,7 @@ if [ "$run_in_docker" = true ]; then
     docker run --rm "${docker_tty_args[@]}" \
         -v "$(pwd):/workspace" \
         -w /workspace \
-        ros-${ROS_DISTRO}-builder \
+        ros-${ros_distro}-builder:${DOCKER_IMAGE_VERSION} \
         bash -c "$inner_command"
 
     exit 0
