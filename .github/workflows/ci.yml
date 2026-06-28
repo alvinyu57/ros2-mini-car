@@ -56,7 +56,10 @@ jobs:
 
       - name: Publish Docker image
         run: |
+          set -a
           source .env
+          set +a
+
           image_name="ghcr.io/${GITHUB_REPOSITORY,,}/ros-lyrical-builder"
           
           docker tag ros-lyrical-builder "${image_name}:${DOCKER_IMAGE_VERSION}"
