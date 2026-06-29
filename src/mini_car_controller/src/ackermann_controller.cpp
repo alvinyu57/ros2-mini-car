@@ -13,7 +13,8 @@
 class AckermannController : public rclcpp::Node {
 public:
   AckermannController()
-  : Node("mini_car_ackermann_controller") {
+  : Node("mini_car_ackermann_controller")
+  {
     wheel_base_ = declare_parameter<double>("wheel_base", 0.40);
     wheel_radius_ = declare_parameter<double>("wheel_radius", 0.07);
     max_steering_angle_ = declare_parameter<double>("max_steering_angle", 0.6);
@@ -54,13 +55,15 @@ public:
   }
 
 private:
-  void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
+  void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
+  {
     target_speed_ = std::clamp(msg->linear.x, -max_speed_, max_speed_);
     target_yaw_rate_ = msg->angular.z;
     last_cmd_time_ = now();
   }
 
-  void update() {
+  void update()
+  {
     const rclcpp::Time current_time = now();
     const double dt = (current_time - last_update_time_).seconds();
     last_update_time_ = current_time;
@@ -88,7 +91,8 @@ private:
     }
   }
 
-  double computeSteeringAngle(double speed, double yaw_rate) const {
+  double computeSteeringAngle(double speed, double yaw_rate) const
+  {
     if (std::abs(speed) < 1e-3) {
       return 0.0;
     }
@@ -97,7 +101,8 @@ private:
     return std::clamp(steering_angle, -max_steering_angle_, max_steering_angle_);
   }
 
-  void publishJointCommands(double steering_angle, double rear_wheel_velocity) {
+  void publishJointCommands(double steering_angle, double rear_wheel_velocity)
+  {
     std_msgs::msg::Float64MultiArray steering_cmd;
     steering_cmd.data = {steering_angle, steering_angle};
     steering_pub_->publish(steering_cmd);
@@ -111,7 +116,8 @@ private:
     const rclcpp::Time & stamp,
     double dt,
     double speed,
-    double steering_angle) {
+    double steering_angle)
+  {
     const double yaw_rate = speed * std::tan(steering_angle) / wheel_base_;
 
     x_ += speed * std::cos(yaw_) * dt;
@@ -182,7 +188,8 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 };
 
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv)
+{
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<AckermannController>());
   rclcpp::shutdown();

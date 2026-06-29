@@ -354,6 +354,8 @@
     <mu2>1.5</mu2>
     <kp>1000000.0</kp>
     <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1<maxVel>
   </gazebo>
 
   <gazebo reference="front_right_wheel_link">
@@ -362,6 +364,8 @@
     <mu2>1.5</mu2>
     <kp>1000000.0</kp>
     <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1<maxVel>
   </gazebo>
 
   <gazebo reference="rear_left_wheel_link">
@@ -370,6 +374,8 @@
     <mu2>1.5</mu2>
     <kp>1000000.0</kp>
     <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1<maxVel>
   </gazebo>
 
   <gazebo reference="rear_right_wheel_link">
@@ -378,6 +384,8 @@
     <mu2>1.5</mu2>
     <kp>1000000.0</kp>
     <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1<maxVel>
   </gazebo>
 
   <gazebo reference="lidar_link">
