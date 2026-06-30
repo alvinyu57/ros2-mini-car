@@ -69,8 +69,8 @@ sudo apt install \
 - [x] Create `mini_car.urdf.xacro` to describe the mini car model
 - [x] Use `robot_state_publisher` to publish the robot description and TF tree
 - [x] Create a GZ Sim launch file to spawn the mini car in a simulation world
-- [ ] Add Gazebo Ackermann control loop using `ros_gz`, `ros2_control`, and a custom controller node
-- [ ] Verify `/odom`, `/tf`, and `/joint_states` from simulation
+- [x] Add Gazebo Ackermann control loop using `ros_gz`, `ros2_control`, and a custom controller node
+- [x] Verify `/odom`, `/tf`, and `/joint_states` from simulation
 - [ ] Configure RViz to display the robot model, TF frames, odometry, and joint states
 - [ ] Add a simulated LiDAR sensor to the mini car model
 - [ ] Use SLAM Toolbox to build a map from simulated LiDAR data
