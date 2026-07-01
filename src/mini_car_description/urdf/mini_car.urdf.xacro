@@ -416,6 +416,17 @@
       <state_interface name="velocity"/>
     </joint>
 
+    <!-- Passive front wheel joints: expose state so robot_state_publisher can complete the TF tree. -->
+    <joint name="front_left_wheel_joint">
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="front_right_wheel_joint">
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
     <!-- Rear wheel joints: velocity control -->
     <joint name="rear_left_wheel_joint">
       <command_interface name="velocity"/>
@@ -425,6 +436,11 @@
 
     <joint name="rear_right_wheel_joint">
       <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="steering_wheel_joint">
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>

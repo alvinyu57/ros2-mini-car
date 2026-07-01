@@ -45,6 +45,7 @@ if [ "$run_in_docker" = true ]; then
     echo "Building in Docker..."
 
     command_name=$(basename "$0")
+    workspace_dir="$(pwd)"
 
     args=()
     for arg in "${ORIGINAL_ARGS[@]}"; do
@@ -65,8 +66,8 @@ if [ "$run_in_docker" = true ]; then
 
     docker run --rm "${docker_tty_args[@]}" \
         --user "$(id -u):$(id -g)" \
-        -v "$(pwd):/workspace" \
-        -w /workspace \
+        -v "${workspace_dir}:${workspace_dir}" \
+        -w "${workspace_dir}" \
         ros-${ros_distro}-builder:${docker_image_version} \
         bash -c "$inner_command"
 
