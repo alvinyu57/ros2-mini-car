@@ -1,5 +1,5 @@
 # ros2-lyrical-mini-car
-A ROS 2 Lyrical C++ learning project for simulating and controlling a differential-drive mini car in Gazebo with RViz visualization.
+A ROS 2 Lyrical C++ learning project for simulating and controlling an Ackermann-style mini car in Gazebo with RViz visualization.
 
 ## Environment Setup
 
@@ -33,7 +33,7 @@ sudo apt install \
     ```
 1. Pull docker image from GHCR
     ```bash
-    ./scripts/pull-docker-image.sh
+    ./scripts/pull-ghcr.sh
     ```
 1. Build ROS2 package
     ```bash
@@ -51,7 +51,7 @@ sudo apt install \
 
 1. Enter docker container
     ```bash
-    ./scripts/pull-docker-image.sh
+    ./scripts/docker-it.sh
     ```
 
 1. Clean up
@@ -71,7 +71,7 @@ sudo apt install \
 - [x] Create a GZ Sim launch file to spawn the mini car in a simulation world
 - [x] Add Gazebo Ackermann control loop using `ros_gz`, `ros2_control`, and a custom controller node
 - [x] Verify `/odom`, `/tf`, and `/joint_states` from simulation
-- [ ] Configure RViz to display the robot model, TF frames, odometry, and joint states
+- [x] Configure RViz to display the robot model, TF frames, odometry, and joint states
 - [ ] Add a simulated LiDAR sensor to the mini car model
 - [ ] Use SLAM Toolbox to build a map from simulated LiDAR data
 - [ ] Add Navigation2 support for autonomous navigation
@@ -263,3 +263,69 @@ sudo apt install \
     # Going to right
     ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: -0.3}}" -r 10
     ```
+
+### Ackermann Simulation + RViz
+
+The Ackermann simulation launch file starts the whole visualization pipeline:
+
+```bash
+ros2 launch mini_car_gazebo gazebo_ackermann.launch.py gui:=true rviz:=true
+```
+
+The important nodes and topics are:
+
+- `robot_state_publisher` publishes the URDF model on `/robot_description` and fixed/movable TF links from `/joint_states`.
+- `joint_state_broadcaster` publishes `/joint_states` from the Gazebo `ros2_control` hardware interface.
+- `mini_car_ackermann_controller` subscribes to `/cmd_vel`, commands the steering and rear wheel controllers, publishes `/odom`, and broadcasts `odom -> base_footprint`.
+- `rviz2` loads `src/mini_car_description/rviz/gazebo_ackermann.rviz`.
+
+RViz is configured with:
+
+- Fixed Frame: `odom`
+- RobotModel: `/robot_description`
+- TF display: all frames enabled
+- Odometry display: `/odom`
+
+`odom` is used as the RViz fixed frame because the car moves relative to the world. The robot model then follows the dynamic TF chain:
+
+```text
+odom
+└── base_footprint
+    └── base_link
+        ├── front_left_steering_link
+        ├── front_right_steering_link
+        ├── rear_left_wheel_link
+        ├── rear_right_wheel_link
+        └── lidar_link
+```
+
+RViz is delayed in the launch file so it starts after the odometry publisher. Without that delay, RViz can open before the `odom` frame exists and show invalid displays at startup.
+
+### Runtime Checks
+
+Use these checks when RViz opens but the displays are invalid:
+
+```bash
+ros2 topic list
+ros2 topic echo /clock --once
+ros2 topic echo /joint_states --once
+ros2 topic echo /odom --once
+ros2 run tf2_ros tf2_echo odom base_footprint
+```
+
+Expected results:
+
+- `/clock` is publishing when Gazebo is running.
+- `/joint_states` contains steering and wheel joint names.
+- `/odom` is publishing from `mini_car_ackermann_controller`.
+- `tf2_echo odom base_footprint` returns a transform.
+
+If `/odom` is missing, check that `mini_car_ackermann_controller` started. If `/joint_states` is missing, check that `joint_state_broadcaster` loaded successfully. If TF is incomplete, check that every movable URDF joint that RViz needs has a state interface in `mini_car.urdf.xacro`.
+
+### Build Notes
+
+The Docker package build mounts the workspace at the same absolute path inside the container. This avoids stale CMake cache errors when switching between host and Docker builds.
+
+```bash
+./scripts/build-package.sh --docker --test
+```
