@@ -166,5 +166,5 @@ set -u
 # ros2 run mini_car simple_controller &
 # ros2 launch mini_car_description display.launch.py &
 # ros2 launch mini_car_gazebo gazebo.launch.py gui:="${gazebo_gui}" &
-ros2 launch mini_car_gazebo gazebo_ackermann.launch.py gui:="${gazebo_gui}" &
+QT_ENABLE_HIGHDPI_SCALING=0 ros2 launch mini_car_gazebo gazebo_ackermann.launch.py gui:="${gazebo_gui}" # Setting environment parameters to prevent the screen from flicking (probably caused by QT HiDPI scaling)
 wait

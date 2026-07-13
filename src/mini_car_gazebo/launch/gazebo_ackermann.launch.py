@@ -29,7 +29,7 @@ def generate_launch_description():
     world_file = os.path.join(
         mini_car_gazebo_dir,
         'worlds',
-        'empty.sdf',
+        'puzzle.sdf',
     )
 
     ros2_control_config = os.path.join(
@@ -96,7 +96,7 @@ def generate_launch_description():
         executable='create',
         output='screen',
         arguments=[
-            '-world', 'empty',
+            '-world', 'puzzle',
             '-topic', 'robot_description',
             '-name', 'mini_car',
             '-z', '0.15',
