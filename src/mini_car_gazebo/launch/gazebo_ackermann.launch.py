@@ -147,49 +147,27 @@ def generate_launch_description():
         output='screen',
     )
 
-    front_steering_controller_spawner = Node(
+    ackermann_steering_controller_spawner = Node(
         package='controller_manager',
         executable='spawner',
         arguments=[
-            'front_steering_controller',
+            'ackermann_steering_controller',
             '--controller-manager',
             '/controller_manager',
             '--param-file',
             ros2_control_config,
+            '--controller-ros-args',
+            '--ros-args --remap ~/odometry:=/odom --remap ~/tf_odometry:=/tf',
         ],
         output='screen',
     )
 
-    rear_wheel_velocity_controller_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'rear_wheel_velocity_controller',
-            '--controller-manager',
-            '/controller_manager',
-            '--param-file',
-            ros2_control_config,
-        ],
-        output='screen',
-    )
-
-    ackermann_controller = Node(
+    cmd_vel_adapter = Node(
         package='mini_car_controller',
-        executable='ackermann_controller',
-        name='mini_car_ackermann_controller',
+        executable='cmd_vel_adapter',
+        name='cmd_vel_adapter',
         output='screen',
-        parameters=[{
-            'use_sim_time': True,
-            'wheel_base': 0.40,
-            'wheel_radius': 0.07,
-            'max_steering_angle': 0.6,
-            'max_steering_rate': 1.0,
-            'max_speed': 2.0,
-            'command_timeout_sec': 0.5,
-            'publish_odom': True,
-            'odom_frame_id': 'odom',
-            'base_frame_id': 'base_footprint',
-        }],
+        parameters=[{'use_sim_time': True}],
     )
 
     delayed_spawn = TimerAction(
@@ -201,14 +179,13 @@ def generate_launch_description():
         period=5.0,
         actions=[
             joint_state_broadcaster_spawner,
-            front_steering_controller_spawner,
-            rear_wheel_velocity_controller_spawner,
+            ackermann_steering_controller_spawner,
         ],
     )
 
-    delayed_ackermann_controller = TimerAction(
+    delayed_cmd_vel_adapter = TimerAction(
         period=7.0,
-        actions=[ackermann_controller],
+        actions=[cmd_vel_adapter],
     )
 
     delayed_rviz = TimerAction(
@@ -234,6 +211,6 @@ def generate_launch_description():
         scan_bridge,
         delayed_spawn,
         delayed_controllers,
-        delayed_ackermann_controller,
+        delayed_cmd_vel_adapter,
         delayed_rviz,
     ])

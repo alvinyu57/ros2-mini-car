@@ -13,6 +13,7 @@ sudo apt install \
     ros-lyrical-ros-gz-bridge \
     ros-lyrical-ros2-control \
     ros-lyrical-ros2-controllers \
+    ros-lyrical-ackermann-steering-controller \
     ros-lyrical-controller-manager \
     ros-lyrical-robot-state-publisher \
     ros-lyrical-joint-state-publisher-gui \
@@ -40,6 +41,16 @@ sudo apt install \
     ./scripts/build-package.sh [--docker] [--test]
     #    --test, test        Run package tests after building.
     #    --docker, docker    Build package in Docker."
+    ```
+    The `--test` option runs the GoogleTest unit suite, controller configuration
+    contract tests, and the ROS 2 ament linters.
+
+    To run only the controller unit tests after a build:
+    ```bash
+    source install/setup.bash
+    colcon test --packages-select mini_car_controller \
+        --ctest-args -R test_twist_conversion
+    colcon test-result --verbose
     ```
 1. Run ROS2 package
     ```bash
@@ -69,7 +80,7 @@ sudo apt install \
 - [x] Create `mini_car.urdf.xacro` to describe the mini car model
 - [x] Use `robot_state_publisher` to publish the robot description and TF tree
 - [x] Create a GZ Sim launch file to spawn the mini car in a simulation world
-- [x] Add Gazebo Ackermann control loop using `ros_gz`, `ros2_control`, and a custom controller node
+- [x] Add Gazebo Ackermann control using the ROS 2 `ackermann_steering_controller`
 - [x] Verify `/odom`, `/tf`, and `/joint_states` from simulation
 - [x] Configure RViz to display the robot model, TF frames, odometry, and joint states
 - [x] Add a simulated LiDAR sensor to the mini car model
@@ -276,8 +287,34 @@ The important nodes and topics are:
 
 - `robot_state_publisher` publishes the URDF model on `/robot_description` and fixed/movable TF links from `/joint_states`.
 - `joint_state_broadcaster` publishes `/joint_states` from the Gazebo `ros2_control` hardware interface.
-- `mini_car_ackermann_controller` subscribes to `/cmd_vel`, commands the steering and rear wheel controllers, publishes `/odom`, and broadcasts `odom -> base_footprint`.
+- `cmd_vel_adapter` converts `/cmd_vel` from `Twist` to the stamped reference expected by the ROS 2 controller.
+- `ackermann_steering_controller` owns the four joint command interfaces, publishes `/odom`, and broadcasts `odom -> base_footprint`.
 - `rviz2` loads `src/mini_car_description/rviz/gazebo_ackermann.rviz`.
+
+The command path is:
+
+```text
+/cmd_vel (Twist)
+└── cmd_vel_adapter
+    └── /ackermann_steering_controller/reference (TwistStamped)
+        └── ackermann_steering_controller
+```
+To control the mini car, there are two options:
+
+1. Publish a `Twist` message on `/cmd_vel`:
+
+    ```bash
+    ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: 0.3}}" -r 10
+    ```
+
+1. Use the `teleop_twist_keyboard` node to control the mini car interactively:
+
+    ```bash
+    ros2 run teleop_twist_keyboard teleop_twist_keyboard
+    ```
+
+    Notice that the `teleop_twist_keyboard' publishes on `/cmd_vel` at 10 Hz, which is the same rate as the `cmd_vel_adapter` timer. And the safety timeout in `ackermann_steering_controller` is set to 5 seconds, so if you stop sending commands, the mini car will stop after 5 seconds.
+
 
 RViz is configured with:
 
@@ -353,11 +390,11 @@ Expected results:
 
 - `/clock` is publishing when Gazebo is running.
 - `/joint_states` contains steering and wheel joint names.
-- `/odom` is publishing from `mini_car_ackermann_controller`.
+- `/odom` is publishing from `ackermann_steering_controller`.
 - `/scan` is publishing `sensor_msgs/msg/LaserScan` with `header.frame_id: lidar_link`.
 - `tf2_echo odom base_footprint` returns a transform.
 
-If `/odom` is missing, check that `mini_car_ackermann_controller` started. If `/joint_states` is missing, check that `joint_state_broadcaster` loaded successfully. If TF is incomplete, check that every movable URDF joint that RViz needs has a state interface in `mini_car.urdf.xacro`.
+If `/odom` is missing, check that `ackermann_steering_controller` is active. If `/joint_states` is missing, check that `joint_state_broadcaster` loaded successfully. If TF is incomplete, check that every movable URDF joint that RViz needs has a state interface in `mini_car.urdf.xacro`.
 
 ### Build Notes
 
