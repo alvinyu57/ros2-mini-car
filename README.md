@@ -72,7 +72,7 @@ sudo apt install \
 - [x] Add Gazebo Ackermann control loop using `ros_gz`, `ros2_control`, and a custom controller node
 - [x] Verify `/odom`, `/tf`, and `/joint_states` from simulation
 - [x] Configure RViz to display the robot model, TF frames, odometry, and joint states
-- [ ] Add a simulated LiDAR sensor to the mini car model
+- [x] Add a simulated LiDAR sensor to the mini car model
 - [ ] Use SLAM Toolbox to build a map from simulated LiDAR data
 - [ ] Add Navigation2 support for autonomous navigation
 
@@ -285,6 +285,7 @@ RViz is configured with:
 - RobotModel: `/robot_description`
 - TF display: all frames enabled
 - Odometry display: `/odom`
+- LaserScan display: `/scan`
 
 `odom` is used as the RViz fixed frame because the car moves relative to the world. The robot model then follows the dynamic TF chain:
 
@@ -301,6 +302,40 @@ odom
 
 RViz is delayed in the launch file so it starts after the odometry publisher. Without that delay, RViz can open before the `odom` frame exists and show invalid displays at startup.
 
+### LiDAR Scan
+
+The Ackermann simulation includes a simulated 2D GPU LiDAR mounted on `lidar_link`.
+Gazebo publishes the scan on `/scan`, and `ros_gz_bridge` exposes it to ROS 2 as:
+
+```text
+/scan sensor_msgs/msg/LaserScan
+```
+
+The scan is configured for 10 Hz, 720 horizontal samples, 270 degrees of view, and an 0.08 m to 8.0 m range.
+The world includes a few static obstacles in front of the start pose so scan returns are visible immediately.
+
+Launch the simulation:
+
+```bash
+ros2 launch mini_car_gazebo gazebo_ackermann.launch.py gui:=true rviz:=true
+```
+
+Check the ROS 2 scan topic:
+
+```bash
+ros2 topic echo /scan --once
+ros2 topic hz /scan
+ros2 topic info /scan
+ros2 run tf2_ros tf2_echo odom lidar_link
+```
+
+Check the Gazebo scan topic directly:
+
+```bash
+gz topic -l | grep scan
+gz topic -e -t /scan
+```
+
 ### Runtime Checks
 
 Use these checks when RViz opens but the displays are invalid:
@@ -310,6 +345,7 @@ ros2 topic list
 ros2 topic echo /clock --once
 ros2 topic echo /joint_states --once
 ros2 topic echo /odom --once
+ros2 topic echo /scan --once
 ros2 run tf2_ros tf2_echo odom base_footprint
 ```
 
@@ -318,6 +354,7 @@ Expected results:
 - `/clock` is publishing when Gazebo is running.
 - `/joint_states` contains steering and wheel joint names.
 - `/odom` is publishing from `mini_car_ackermann_controller`.
+- `/scan` is publishing `sensor_msgs/msg/LaserScan` with `header.frame_id: lidar_link`.
 - `tf2_echo odom base_footprint` returns a transform.
 
 If `/odom` is missing, check that `mini_car_ackermann_controller` started. If `/joint_states` is missing, check that `joint_state_broadcaster` loaded successfully. If TF is incomplete, check that every movable URDF joint that RViz needs has a state interface in `mini_car.urdf.xacro`.

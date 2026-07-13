@@ -29,7 +29,7 @@ def generate_launch_description():
     world_file = os.path.join(
         mini_car_gazebo_dir,
         'worlds',
-        'empty.sdf',
+        'puzzle.sdf',
     )
 
     ros2_control_config = os.path.join(
@@ -42,6 +42,12 @@ def generate_launch_description():
         mini_car_description_dir,
         'rviz',
         'gazebo_ackermann.rviz',
+    )
+
+    scan_bridge_config = os.path.join(
+        mini_car_gazebo_dir,
+        'config',
+        'scan_bridge.yaml',
     )
 
     robot_description = {
@@ -90,7 +96,7 @@ def generate_launch_description():
         executable='create',
         output='screen',
         arguments=[
-            '-world', 'empty',
+            '-world', 'puzzle',
             '-topic', 'robot_description',
             '-name', 'mini_car',
             '-z', '0.15',
@@ -106,6 +112,16 @@ def generate_launch_description():
         arguments=[
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
         ],
+    )
+
+    scan_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        name='scan_bridge',
+        output='screen',
+        parameters=[{
+            'config_file': scan_bridge_config,
+        }],
     )
 
     rviz_node = Node(
@@ -215,6 +231,7 @@ def generate_launch_description():
         gazebo_gui,
         gazebo_headless,
         clock_bridge,
+        scan_bridge,
         delayed_spawn,
         delayed_controllers,
         delayed_ackermann_controller,

@@ -21,7 +21,7 @@
   <xacro:property name="wheel_y" value="0.17"/>
 
   <xacro:property name="lidar_radius" value="0.045"/>
-  <xacro:property name="lidar_height" value="0.04"/>
+  <xacro:property name="lidar_height" value="0.1"/>
 
   <!-- Ackermann drive parameters -->
   <xacro:property name="wheel_base" value="${front_axle_x - rear_axle_x}"/>
@@ -248,8 +248,7 @@
   </joint>
 
   <!-- ========================= -->
-  <!-- LiDAR placeholder -->
-  <!-- The actual Gazebo LiDAR sensor will be added later. -->
+  <!-- LiDAR -->
   <!-- ========================= -->
 
   <link name="lidar_link">
@@ -288,6 +287,30 @@
       xyz="0.15 0 ${base_height / 2.0 + lidar_height / 2.0}"
       rpy="0 0 0"/>
   </joint>
+
+  <gazebo reference="lidar_link">
+    <sensor name="lidar_sensor" type="gpu_lidar">
+      <topic>/scan</topic>
+      <update_rate>10</update_rate>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-2.35619449</min_angle>
+            <max_angle>2.35619449</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.08</min>
+          <max>8.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </lidar>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+    </sensor>
+  </gazebo>
 
   <!-- ========================= -->
   <!-- Virtual steering wheel -->
