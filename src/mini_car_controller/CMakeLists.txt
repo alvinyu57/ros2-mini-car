@@ -7,23 +7,10 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(builtin_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-add_library(twist_conversion STATIC src/twist_conversion.cpp)
-target_include_directories(twist_conversion
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-)
-target_link_libraries(twist_conversion
-  PUBLIC
-    builtin_interfaces::builtin_interfaces
-    geometry_msgs::geometry_msgs
-)
-
 if(BUILD_TESTING)
-  find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
@@ -33,11 +20,6 @@ if(BUILD_TESTING)
   # a copyright and license is added to all source files
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
-
-  ament_add_gtest(test_twist_conversion
-    test/test_twist_conversion.cpp
-  )
-  target_link_libraries(test_twist_conversion twist_conversion)
 endif()
 
 add_executable(simple_controller src/simple_controller.cpp)
@@ -47,15 +29,14 @@ target_link_libraries(simple_controller
     geometry_msgs::geometry_msgs
 )
 
-add_executable(cmd_vel_adapter src/cmd_vel_adapter.cpp)
-target_link_libraries(cmd_vel_adapter
+add_executable(ackermann_controller src/ackermann_controller.cpp)
+target_link_libraries(ackermann_controller
   PRIVATE
-    twist_conversion
     rclcpp::rclcpp
     geometry_msgs::geometry_msgs
 )
 
-install(TARGETS simple_controller cmd_vel_adapter
+install(TARGETS simple_controller ackermann_controller
   DESTINATION lib/${PROJECT_NAME}
 )
 

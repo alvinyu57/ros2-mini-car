@@ -157,17 +157,12 @@ def generate_launch_description():
             '--param-file',
             ros2_control_config,
             '--controller-ros-args',
-            '--ros-args --remap ~/odometry:=/odom --remap ~/tf_odometry:=/tf',
+            (
+                '--ros-args --remap ~/reference:=/cmd_vel '
+                '--remap ~/odometry:=/odom --remap ~/tf_odometry:=/tf'
+            ),
         ],
         output='screen',
-    )
-
-    cmd_vel_adapter = Node(
-        package='mini_car_controller',
-        executable='cmd_vel_adapter',
-        name='cmd_vel_adapter',
-        output='screen',
-        parameters=[{'use_sim_time': True}],
     )
 
     delayed_spawn = TimerAction(
@@ -181,11 +176,6 @@ def generate_launch_description():
             joint_state_broadcaster_spawner,
             ackermann_steering_controller_spawner,
         ],
-    )
-
-    delayed_cmd_vel_adapter = TimerAction(
-        period=7.0,
-        actions=[cmd_vel_adapter],
     )
 
     delayed_rviz = TimerAction(
@@ -211,6 +201,5 @@ def generate_launch_description():
         scan_bridge,
         delayed_spawn,
         delayed_controllers,
-        delayed_cmd_vel_adapter,
         delayed_rviz,
     ])

@@ -7,6 +7,7 @@ import yaml
 
 PACKAGE_DIR = Path(__file__).resolve().parents[1]
 CONFIG_FILE = PACKAGE_DIR / 'config' / 'ros2_control.yaml'
+LAUNCH_FILE = PACKAGE_DIR / 'launch' / 'gazebo_ackermann.launch.py'
 URDF_FILE = (
     PACKAGE_DIR.parent
     / 'mini_car_description'
@@ -87,3 +88,10 @@ def test_traction_command_limits_preserve_two_meter_per_second_ceiling():
         }
         assert isclose(limits['min'], -expected_limit)
         assert isclose(limits['max'], expected_limit)
+
+
+def test_stamped_command_input_is_remapped_directly_to_cmd_vel():
+    launch_source = LAUNCH_FILE.read_text(encoding='utf-8')
+
+    assert '--remap ~/reference:=/cmd_vel' in launch_source
+    assert 'cmd_vel_adapter' not in launch_source

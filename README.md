@@ -42,14 +42,14 @@ sudo apt install \
     #    --test, test        Run package tests after building.
     #    --docker, docker    Build package in Docker."
     ```
-    The `--test` option runs the GoogleTest unit suite, controller configuration
-    contract tests, and the ROS 2 ament linters.
+    The `--test` option runs the controller configuration contract tests and
+    the ROS 2 ament linters.
 
-    To run only the controller unit tests after a build:
+    To run only the controller configuration tests after a build:
     ```bash
     source install/setup.bash
-    colcon test --packages-select mini_car_controller \
-        --ctest-args -R test_twist_conversion
+    colcon test --packages-select mini_car_gazebo \
+        --ctest-args -R test_ros2_control_config
     colcon test-result --verbose
     ```
 1. Run ROS2 package
@@ -269,10 +269,12 @@ sudo apt install \
 1. Manipulate the mini_car
     ```bash
     # Going to left
-    ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: 0.3}}" -r 10
+    ros2 run mini_car_controller ackermann_controller --ros-args \
+      -p use_sim_time:=true -p linear_speed:=0.5 -p angular_speed:=0.3
 
     # Going to right
-    ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: -0.3}}" -r 10
+    ros2 run mini_car_controller ackermann_controller --ros-args \
+      -p use_sim_time:=true -p linear_speed:=0.5 -p angular_speed:=-0.3
     ```
 
 ### Ackermann Simulation + RViz
@@ -287,33 +289,35 @@ The important nodes and topics are:
 
 - `robot_state_publisher` publishes the URDF model on `/robot_description` and fixed/movable TF links from `/joint_states`.
 - `joint_state_broadcaster` publishes `/joint_states` from the Gazebo `ros2_control` hardware interface.
-- `cmd_vel_adapter` converts `/cmd_vel` from `Twist` to the stamped reference expected by the ROS 2 controller.
-- `ackermann_steering_controller` owns the four joint command interfaces, publishes `/odom`, and broadcasts `odom -> base_footprint`.
+- `ackermann_steering_controller` receives stamped commands directly on `/cmd_vel`, owns the four joint command interfaces, publishes `/odom`, and broadcasts `odom -> base_footprint`.
 - `rviz2` loads `src/mini_car_description/rviz/gazebo_ackermann.rviz`.
 
 The command path is:
 
 ```text
-/cmd_vel (Twist)
-└── cmd_vel_adapter
-    └── /ackermann_steering_controller/reference (TwistStamped)
-        └── ackermann_steering_controller
+/cmd_vel (TwistStamped)
+└── ackermann_steering_controller
 ```
+
 To control the mini car, there are two options:
 
-1. Publish a `Twist` message on `/cmd_vel`:
+1. Run the stamped Ackermann command publisher:
 
     ```bash
-    ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: 0.3}}" -r 10
+    ros2 run mini_car_controller ackermann_controller --ros-args \
+      -p use_sim_time:=true -p linear_speed:=0.5 -p angular_speed:=0.3
     ```
 
 1. Use the `teleop_twist_keyboard` node to control the mini car interactively:
 
     ```bash
-    ros2 run teleop_twist_keyboard teleop_twist_keyboard
+    ros2 run teleop_twist_keyboard teleop_twist_keyboard \
+      --ros-args -p stamped:=true -p use_sim_time:=true
     ```
 
-    Notice that the `teleop_twist_keyboard' publishes on `/cmd_vel` at 10 Hz, which is the same rate as the `cmd_vel_adapter` timer. And the safety timeout in `ackermann_steering_controller` is set to 5 seconds, so if you stop sending commands, the mini car will stop after 5 seconds.
+    The keyboard publishes one stamped command per key event. The safety timeout
+    in `ackermann_steering_controller` is set to 5 seconds, so the car stops if
+    no new key command arrives during that interval.
 
 
 RViz is configured with:
