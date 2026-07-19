@@ -2,7 +2,10 @@
 
 set -euo pipefail
 
-source .env
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+source "$WORKSPACE_DIR/.env"
 
 ros_distro="${ROS_DISTRO:-lyrical}"
 docker_image_version="${DOCKER_IMAGE_VERSION:-latest}"
