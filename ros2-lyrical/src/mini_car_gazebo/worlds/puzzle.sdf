@@ -1,0 +1,289 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <!--
+    A lidar-friendly maze for the Ackermann mini car.
+
+    Start:  (0, 0), facing in the +X direction.
+    Finish: (15.5, -5.0), marked by the green pad.
+
+    The alternating wall openings create a long route while the generous
+    clearances leave enough room for an Ackermann-steered vehicle to turn.
+  -->
+  <world name="puzzle">
+    <physics name="10ms" type="ignored">
+      <max_step_size>0.01</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics"/>
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands"/>
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 15 0 0 0</pose>
+      <diffuse>0.85 0.85 0.85 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.2 -0.9</direction>
+    </light>
+
+    <model name="puzzle_floor">
+      <static>true</static>
+      <pose>7.5 0 0 0 0 0</pose>
+      <link name="floor_link">
+        <collision name="floor_collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>22 20</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="floor_visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>22 20</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.16 0.18 0.20 1</ambient>
+            <diffuse>0.22 0.24 0.27 1</diffuse>
+            <specular>0.05 0.05 0.05 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Blue start pad. It is visual-only so it cannot catch the wheels. -->
+    <model name="start_pad">
+      <static>true</static>
+      <pose>0 0 0.006 0 0 0</pose>
+      <link name="start_pad_link">
+        <visual name="start_pad_visual">
+          <geometry>
+            <box>
+              <size>1.4 1.4 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.05 0.30 0.95 1</ambient>
+            <diffuse>0.05 0.40 1.00 1</diffuse>
+            <emissive>0.01 0.04 0.12 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Green finish pad in the last corridor. -->
+    <model name="finish_pad">
+      <static>true</static>
+      <pose>15.5 -5.0 0.006 0 0 0</pose>
+      <link name="finish_pad_link">
+        <visual name="finish_pad_visual">
+          <geometry>
+            <box>
+              <size>1.8 1.8 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.05 0.85 0.20 1</ambient>
+            <diffuse>0.10 1.00 0.25 1</diffuse>
+            <emissive>0.01 0.10 0.02 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Outer boundary and alternating maze dividers. -->
+    <model name="maze_walls">
+      <static>true</static>
+      <link name="walls_link">
+        <!-- Outer boundary: x = -2 and x = 17, y = -8 and y = 8. -->
+        <collision name="boundary_left_collision">
+          <pose>-2 0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 16.25 0.8</size></box></geometry>
+        </collision>
+        <visual name="boundary_left_visual">
+          <pose>-2 0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 16.25 0.8</size></box></geometry>
+          <material>
+            <ambient>0.08 0.32 0.62 1</ambient>
+            <diffuse>0.10 0.42 0.78 1</diffuse>
+          </material>
+        </visual>
+
+        <collision name="boundary_right_collision">
+          <pose>17 0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 16.25 0.8</size></box></geometry>
+        </collision>
+        <visual name="boundary_right_visual">
+          <pose>17 0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 16.25 0.8</size></box></geometry>
+          <material>
+            <ambient>0.08 0.32 0.62 1</ambient>
+            <diffuse>0.10 0.42 0.78 1</diffuse>
+          </material>
+        </visual>
+
+        <collision name="boundary_top_collision">
+          <pose>7.5 8 0.4 0 0 0</pose>
+          <geometry><box><size>19.25 0.25 0.8</size></box></geometry>
+        </collision>
+        <visual name="boundary_top_visual">
+          <pose>7.5 8 0.4 0 0 0</pose>
+          <geometry><box><size>19.25 0.25 0.8</size></box></geometry>
+          <material>
+            <ambient>0.08 0.32 0.62 1</ambient>
+            <diffuse>0.10 0.42 0.78 1</diffuse>
+          </material>
+        </visual>
+
+        <collision name="boundary_bottom_collision">
+          <pose>7.5 -8 0.4 0 0 0</pose>
+          <geometry><box><size>19.25 0.25 0.8</size></box></geometry>
+        </collision>
+        <visual name="boundary_bottom_visual">
+          <pose>7.5 -8 0.4 0 0 0</pose>
+          <geometry><box><size>19.25 0.25 0.8</size></box></geometry>
+          <material>
+            <ambient>0.08 0.32 0.62 1</ambient>
+            <diffuse>0.10 0.42 0.78 1</diffuse>
+          </material>
+        </visual>
+
+        <!-- Divider 1: pass through the central opening. -->
+        <collision name="divider_1_lower_collision">
+          <pose>2 -4.5 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 7.0 0.8</size></box></geometry>
+        </collision>
+        <visual name="divider_1_lower_visual">
+          <pose>2 -4.5 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 7.0 0.8</size></box></geometry>
+          <material>
+            <ambient>0.82 0.24 0.08 1</ambient>
+            <diffuse>0.95 0.34 0.10 1</diffuse>
+          </material>
+        </visual>
+        <collision name="divider_1_upper_collision">
+          <pose>2 5.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 6.0 0.8</size></box></geometry>
+        </collision>
+        <visual name="divider_1_upper_visual">
+          <pose>2 5.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 6.0 0.8</size></box></geometry>
+          <material>
+            <ambient>0.82 0.24 0.08 1</ambient>
+            <diffuse>0.95 0.34 0.10 1</diffuse>
+          </material>
+        </visual>
+
+        <!-- Divider 2: the only opening is at the north end. -->
+        <collision name="divider_2_collision">
+          <pose>5 -2.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 12.0 0.8</size></box></geometry>
+        </collision>
+        <visual name="divider_2_visual">
+          <pose>5 -2.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 12.0 0.8</size></box></geometry>
+          <material>
+            <ambient>0.82 0.24 0.08 1</ambient>
+            <diffuse>0.95 0.34 0.10 1</diffuse>
+          </material>
+        </visual>
+
+        <!-- Divider 3: turn around and find the south opening. -->
+        <collision name="divider_3_collision">
+          <pose>8 2.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 12.0 0.8</size></box></geometry>
+        </collision>
+        <visual name="divider_3_visual">
+          <pose>8 2.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 12.0 0.8</size></box></geometry>
+          <material>
+            <ambient>0.82 0.24 0.08 1</ambient>
+            <diffuse>0.95 0.34 0.10 1</diffuse>
+          </material>
+        </visual>
+
+        <!-- Divider 4: a second north-side opening. -->
+        <collision name="divider_4_collision">
+          <pose>11 -3.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 10.0 0.8</size></box></geometry>
+        </collision>
+        <visual name="divider_4_visual">
+          <pose>11 -3.0 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 10.0 0.8</size></box></geometry>
+          <material>
+            <ambient>0.82 0.24 0.08 1</ambient>
+            <diffuse>0.95 0.34 0.10 1</diffuse>
+          </material>
+        </visual>
+
+        <!-- Divider 5: final south opening leading to the goal. -->
+        <collision name="divider_5_collision">
+          <pose>14 2.5 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 11.0 0.8</size></box></geometry>
+        </collision>
+        <visual name="divider_5_visual">
+          <pose>14 2.5 0.4 0 0 0</pose>
+          <geometry><box><size>0.25 11.0 0.8</size></box></geometry>
+          <material>
+            <ambient>0.82 0.24 0.08 1</ambient>
+            <diffuse>0.95 0.34 0.10 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Finish gate: two posts make the goal visible to both camera and lidar. -->
+    <model name="finish_gate">
+      <static>true</static>
+      <link name="finish_gate_link">
+        <collision name="finish_post_left_collision">
+          <pose>15.5 -6.15 0.6 0 0 0</pose>
+          <geometry><cylinder><radius>0.12</radius><length>1.2</length></cylinder></geometry>
+        </collision>
+        <visual name="finish_post_left_visual">
+          <pose>15.5 -6.15 0.6 0 0 0</pose>
+          <geometry><cylinder><radius>0.12</radius><length>1.2</length></cylinder></geometry>
+          <material>
+            <ambient>0.08 0.85 0.18 1</ambient>
+            <diffuse>0.10 1.00 0.22 1</diffuse>
+          </material>
+        </visual>
+        <collision name="finish_post_right_collision">
+          <pose>15.5 -3.85 0.6 0 0 0</pose>
+          <geometry><cylinder><radius>0.12</radius><length>1.2</length></cylinder></geometry>
+        </collision>
+        <visual name="finish_post_right_visual">
+          <pose>15.5 -3.85 0.6 0 0 0</pose>
+          <geometry><cylinder><radius>0.12</radius><length>1.2</length></cylinder></geometry>
+          <material>
+            <ambient>0.08 0.85 0.18 1</ambient>
+            <diffuse>0.10 1.00 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

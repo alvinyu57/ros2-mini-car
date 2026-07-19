@@ -1,32 +1,40 @@
-# ros2-lyrical-mini-car
-A ROS 2 Lyrical C++ learning project for simulating and controlling an Ackermann-style mini car in Gazebo with RViz visualization.
+# ROS 2 mini car
+A ROS 2 Jazzy and Lyrical C++ learning project for simulating and controlling an Ackermann-style mini car in Gazebo with RViz visualization.
 
 ## Environment Setup
 
 ```bash
+ROS_DISTRO=jazzy # or lyrical
+
 sudo apt update
-sudo apt install ros-lyrical-desktop
+sudo apt install "ros-${ROS_DISTRO}-desktop"
 
 sudo apt install \
-    ros-lyrical-gz-ros2-control \
-    ros-lyrical-ros-gz-sim \
-    ros-lyrical-ros-gz-bridge \
-    ros-lyrical-ros2-control \
-    ros-lyrical-ros2-controllers \
-    ros-lyrical-ackermann-steering-controller \
-    ros-lyrical-controller-manager \
-    ros-lyrical-robot-state-publisher \
-    ros-lyrical-joint-state-publisher-gui \
-    ros-lyrical-xacro \
-    ros-lyrical-geometry-msgs \
-    ros-lyrical-nav-msgs \
-    ros-lyrical-std-msgs \
-    ros-lyrical-tf2-ros \
+    "ros-${ROS_DISTRO}-gz-ros2-control" \
+    "ros-${ROS_DISTRO}-ros-gz-sim" \
+    "ros-${ROS_DISTRO}-ros-gz-bridge" \
+    "ros-${ROS_DISTRO}-ros2-control" \
+    "ros-${ROS_DISTRO}-ros2-controllers" \
+    "ros-${ROS_DISTRO}-ackermann-steering-controller" \
+    "ros-${ROS_DISTRO}-controller-manager" \
+    "ros-${ROS_DISTRO}-robot-state-publisher" \
+    "ros-${ROS_DISTRO}-joint-state-publisher-gui" \
+    "ros-${ROS_DISTRO}-xacro" \
+    "ros-${ROS_DISTRO}-geometry-msgs" \
+    "ros-${ROS_DISTRO}-nav-msgs" \
+    "ros-${ROS_DISTRO}-std-msgs" \
+    "ros-${ROS_DISTRO}-tf2-ros" \
     python3-rosdep
 
 ```
 
 ## Scripts
+
+Choose the ROS workspace you want to use:
+
+```bash
+cd ros2-jazzy # or ros2-lyrical
+```
 
 1. Build docker image
     ```bash

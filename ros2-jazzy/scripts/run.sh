@@ -3,6 +3,8 @@
 set -euo pipefail
 
 ORIGINAL_ARGS=("$@")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 show_usage() {
     echo "Usage: $0 [--docker] [--headless|--gui]"
@@ -14,11 +16,11 @@ show_usage() {
     echo "  -h, --help          Show this help message."
 }
 
-source .env
+source "$WORKSPACE_DIR/.env"
 
 run_in_docker=false
 gazebo_gui=true
-ros_distro="${ROS_DISTRO:-lyrical}"
+ros_distro="${ROS_DISTRO:-jazzy}"
 docker_image_version="${DOCKER_IMAGE_VERSION:-latest}"
 
 while [[ $# -gt 0 ]]; do
@@ -45,9 +47,6 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
 done
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 if [ "$run_in_docker" = true ]; then
     echo "Running in Docker..."

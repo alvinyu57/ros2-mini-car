@@ -3,6 +3,8 @@
 set -euo pipefail
 
 ORIGINAL_ARGS=("$@")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 show_usage() {
     echo "Usage: $0 [--test] [--docker]"
@@ -13,11 +15,11 @@ show_usage() {
     echo "  -h, --help          Show this help message."
 }
 
-source .env
+source "$WORKSPACE_DIR/.env"
 
 run_tests=false
 run_in_docker=false
-ros_distro="${ROS_DISTRO:-lyrical}"
+ros_distro="${ROS_DISTRO:-jazzy}"
 docker_image_version="${DOCKER_IMAGE_VERSION:-latest}"
 
 while [[ $# -gt 0 ]]; do
@@ -45,8 +47,6 @@ if [ "$run_in_docker" = true ]; then
     echo "Building in Docker..."
 
     command_name=$(basename "$0")
-    workspace_dir="$(pwd)"
-
     args=()
     for arg in "${ORIGINAL_ARGS[@]}"; do
         if [[ "$arg" != "--docker" && "$arg" != "docker" ]]; then
@@ -66,8 +66,8 @@ if [ "$run_in_docker" = true ]; then
 
     docker run --rm "${docker_tty_args[@]}" \
         --user "$(id -u):$(id -g)" \
-        -v "${workspace_dir}:${workspace_dir}" \
-        -w "${workspace_dir}" \
+        -v "${WORKSPACE_DIR}:/workspace" \
+        -w /workspace \
         ros-${ros_distro}-builder:${docker_image_version} \
         bash -c "$inner_command"
 
@@ -79,6 +79,8 @@ if [ ! -f "/opt/ros/${ros_distro}/setup.bash" ]; then
     echo "Set ROS_DISTRO to an installed distro or build the Docker image first."
     exit 1
 fi
+
+cd "$WORKSPACE_DIR"
 
 set +u
 source "/opt/ros/${ros_distro}/setup.bash"

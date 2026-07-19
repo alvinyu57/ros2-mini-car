@@ -2,16 +2,19 @@
 
 set -euo pipefail
 
-source .env
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-ros_distro="${ROS_DISTRO:-lyrical}"
+source "$WORKSPACE_DIR/.env"
+
+ros_distro="${ROS_DISTRO:-jazzy}"
 docker_image_version="${DOCKER_IMAGE_VERSION:-latest}"
 
 local_image_name="ros-${ros_distro}-builder"
 gh_image_name="${GH_IMAGE_NAME:-}"
 
 repo_full_name="${GITHUB_REPOSITORY:-unknown/unknown}"
-git_sha="${GITHUB_SHA:-$(git rev-parse HEAD 2>/dev/null || echo unknown)}"
+git_sha="${GITHUB_SHA:-$(git -C "$WORKSPACE_DIR" rev-parse HEAD 2>/dev/null || echo unknown)}"
 
 tags=(
     -t "${local_image_name}:${docker_image_version}"
@@ -33,4 +36,4 @@ docker build \
     --label "org.opencontainers.image.source=https://github.com/${repo_full_name}" \
     --label "org.opencontainers.image.revision=${git_sha}" \
     --label "org.opencontainers.image.version=${docker_image_version}" \
-    .
+    "$WORKSPACE_DIR"
