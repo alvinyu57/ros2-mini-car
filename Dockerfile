@@ -13,6 +13,7 @@ RUN apt-get update && \
         ros-${ROS_DISTRO}-ros-gz-bridge \
         ros-${ROS_DISTRO}-ros2-control \
         ros-${ROS_DISTRO}-ros2-controllers \
+        ros-${ROS_DISTRO}-ackermann-steering-controller \
         ros-${ROS_DISTRO}-controller-manager \
         ros-${ROS_DISTRO}-robot-state-publisher \
         ros-${ROS_DISTRO}-joint-state-publisher-gui \
